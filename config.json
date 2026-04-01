@@ -2,10 +2,23 @@
     "reserve": [
         {"username": "",
         "password": "",
-        "time": ["20:00","22:00"],
+        "time": ["09:00","22:30"],
         "roomid":"13473",
         "seatid":["414"],
         "daysofweek": ["Monday" , "Tuesday", "Wednesday", "Thursday", "Friday"]
     }
-    ]
+    ],
+  "mail": {
+    "host": "smtp.qq.com",
+    "port": 465,
+    "secure": true,
+    "auth": {
+      "user": "2535615064@qq.com",
+      "pass": "rskfbbotnngpebbe"
+    }
+  },
+  "receivers": [
+    "zq2535615064@outlook.com",
+    "2535615064@qq.com"
+  ]
 }
