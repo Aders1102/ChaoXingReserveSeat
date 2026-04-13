@@ -24,10 +24,10 @@ get_current_dayofweek = lambda action: (
 
 
 SLEEPTIME = 0.5  # 每次抢座的间隔
-ENDTIME = "21:00:03"  # 根据学校的预约座位时间+1min即可
+ENDTIME = "20:00:03"  # 根据学校的预约座位时间+1min即可
 
 ENABLE_SLIDER = True  # 是否有滑块验证
-MAX_ATTEMPT = 5  # 最大尝试次数
+MAX_ATTEMPT = 10  # 最大尝试次数
 RESERVE_NEXT_DAY = False  # 预约明天而不是今天的
 
 
@@ -69,12 +69,24 @@ def login_and_reserve(users, usernames, passwords, action, success_list=None):
 
 
 def main(users, action=False):
-    current_time = get_current_time(action)
-    logging.info(f"start time {current_time}, action {'on' if action else 'off'}")
-    attempt_times = 0
+    # ========== 新增：GitHub Action 模式下提前等待到 20:00 ==========
     usernames, passwords = None, None
     if action:
         usernames, passwords = get_user_credentials(action)
+        import datetime
+        logging.info("GitHub Action 模式已启动，正在等待北京时间 20:00:00...")
+        while True:
+            # 计算当前北京时间
+            now = datetime.datetime.utcnow() + datetime.timedelta(hours=8)
+            if now.hour >= 20:
+                logging.info(f"到达预定时间: {now.strftime('%H:%M:%S')}，开始抢座！")
+                break
+            time.sleep(0.1)  # 检查间隔 0.1 秒，保证触发精度
+    # ========== 新增结束，以下为原有抢座逻辑（未改动） ==========
+
+    current_time = get_current_time(action)
+    logging.info(f"start time {current_time}, action {'on' if action else 'off'}")
+    attempt_times = 0
     success_list = None
     current_dayofweek = get_current_dayofweek(action)
     today_reservation_num = sum(
@@ -82,12 +94,9 @@ def main(users, action=False):
     )
     while current_time < ENDTIME:
         attempt_times += 1
-        # try:
         success_list = login_and_reserve(
             users, usernames, passwords, action, success_list
         )
-        # except Exception as e:
-        #     print(f"An error occurred: {e}")
         print(
             f"attempt time {attempt_times}, time now {current_time}, success list {success_list}"
         )
